@@ -1,10 +1,10 @@
+import Hero from "@/components/base/Hero"
 import { Button } from "@/components/ui/button"
 
 const App = () => {
   return (
     <div>
-      <div className="text-red-500">App</div>
-      <Button>Click</Button>
+      <Hero />
     </div>
   )
 }
