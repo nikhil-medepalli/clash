@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "./views"));
 app.get("/", (req, res) => {
-    res.send("Hello World!");
+    res.render("welcome");
 });
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

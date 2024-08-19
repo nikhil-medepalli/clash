@@ -16,7 +16,7 @@ app.set("view engine", "ejs");
 app.set("views",path.resolve(__dirname, "./views"));
 
 app.get("/", (req: Request, res: Response) => {
-    res.send("Hello World!");
+    res.render("welcome");
 })
 
 app.listen(port, () => {
