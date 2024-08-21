@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import path from "path";
+import ejs from "ejs";
 import { fileURLToPath } from "url";
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -10,9 +11,15 @@ app.use(express.urlencoded({ extended: false }));
 // setting view engine
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "./views"));
-app.get("/", (req, res) => {
-    res.render("welcome");
+app.get("/", async (req, res) => {
+    const html = await ejs.renderFile(__dirname + `/views/emails/welcome.ejs`, { name: "John Doe" });
+    // await sendMail("nikhil.medepalli2702@gmail.com", "Test Email", html)
+    await emailQueue.add(emailQueueName, { to: "nikhil.medepalli2702@gmail.com", subject: "Testing queue email", body: html });
+    return res.json({ message: "Email sent" });
 });
+// queue
+import "./jobs/index.js";
+import { emailQueue, emailQueueName } from "./jobs/EmailJob.js";
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
