@@ -1,8 +1,8 @@
 import express from "express";
 import "dotenv/config";
 import path from "path";
-import ejs from "ejs";
 import { fileURLToPath } from "url";
+import ejs from "ejs";
 import Routes from "./routes/index.js";
 // import { sendMail } from "./config/mail.js";
 const app = express();
