@@ -8,11 +8,12 @@ import { v4 as uuid4 } from "uuid";
 import jwt from "jsonwebtoken";
 import { emailQueue, emailQueueName } from "../jobs/EmailJob.js";
 import authMiddleware from "../middleware/AuthMiddleware.js";
+import { authLimitter } from "../config/rateLimit.js";
 
 const router = Router();
 
 // login route
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", authLimitter, async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const payload = loginSchema.parse(body);
@@ -47,11 +48,11 @@ router.post("/login", async (req: Request, res: Response) => {
 
     return res.json({
       message: "Login Successful",
-      data:{
+      data: {
         ...JWTPayload,
-        token: `Bearer ${token}`
-      }
-    })
+        token: `Bearer ${token}`,
+      },
+    });
   } catch (error) {
     if (error instanceof ZodError) {
       const errors = formatError(error);
@@ -63,8 +64,53 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+// login check
+router.post(
+  "/check/credentials",
+  authLimitter,
+  async (req: Request, res: Response) => {
+    try {
+      const body = req.body;
+      const payload = loginSchema.parse(body);
+
+      // check if user exists
+      let user = await prisma.user.findUnique({
+        where: {
+          email: payload.email,
+        },
+      });
+
+      if (!user || user === null) {
+        return res.status(422).json({ errors: { email: "No User found" } });
+      }
+
+      // password check
+      const compare = await bcrypt.compare(payload.password, user.password);
+
+      if (!compare) {
+        return res
+          .status(422)
+          .json({ errors: { email: "Invalid Credentials" } });
+      }
+
+      return res.json({
+        message: "Login Successful",
+        data: {},
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const errors = formatError(error);
+        return res.status(422).json({ message: "Invalid Data", errors });
+      }
+      return res
+        .status(500)
+        .json({ message: "Something went wrong. Please try again!" });
+    }
+  }
+);
+
 // Register route
-router.post("/register", async (req: Request, res: Response) => {
+router.post("/register", authLimitter, async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const payload = registerSchema.parse(body);
@@ -121,9 +167,9 @@ router.post("/register", async (req: Request, res: Response) => {
 });
 
 // Get User
-router.get("/user",authMiddleware, async (req: Request, res: Response) => {
+router.get("/user", authMiddleware, async (req: Request, res: Response) => {
   const user = req.user;
   return res.json({ data: user });
-})
+});
 
 export default router;

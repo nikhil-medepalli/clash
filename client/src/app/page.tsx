@@ -1,9 +1,12 @@
 import Hero from "@/components/base/Hero"
-import { Button } from "@/components/ui/button"
+import { getServerSession } from "next-auth"
+import { authOptions } from "./api/auth/[...nextauth]/options"
 
-const App = () => {
+const App = async () => {
+  const session = await getServerSession(authOptions)
   return (
     <div>
+      {/* <p>{JSON.stringify(session)}</p> */}
       <Hero />
     </div>
   )
