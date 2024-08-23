@@ -1,12 +1,59 @@
 import { Router } from "express";
-import { registerSchema } from "../validation/authValidation.js";
+import { loginSchema, registerSchema } from "../validation/authValidation.js";
 import { ZodError } from "zod";
 import { formatError, renderEmailEjs } from "../helper.js";
 import prisma from "../config/database.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid4 } from "uuid";
+import jwt from "jsonwebtoken";
 import { emailQueue, emailQueueName } from "../jobs/EmailJob.js";
+import authMiddleware from "../middleware/AuthMiddleware.js";
 const router = Router();
+// login route
+router.post("/login", async (req, res) => {
+    try {
+        const body = req.body;
+        const payload = loginSchema.parse(body);
+        // check if user exists
+        let user = await prisma.user.findUnique({
+            where: {
+                email: payload.email,
+            },
+        });
+        if (!user || user === null) {
+            return res.status(422).json({ errors: { email: "No User found" } });
+        }
+        const compare = await bcrypt.compare(payload.password, user.password);
+        if (!compare) {
+            return res.status(422).json({ errors: { email: "Invalid Credentials" } });
+        }
+        // JWT payload
+        let JWTPayload = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        };
+        const token = jwt.sign(JWTPayload, process.env.SECRET_KEY, {
+            expiresIn: "365d",
+        });
+        return res.json({
+            message: "Login Successful",
+            data: {
+                ...JWTPayload,
+                token: `Bearer ${token}`
+            }
+        });
+    }
+    catch (error) {
+        if (error instanceof ZodError) {
+            const errors = formatError(error);
+            return res.status(422).json({ message: "Invalid Data", errors });
+        }
+        return res
+            .status(500)
+            .json({ message: "Something went wrong. Please try again!" });
+    }
+});
 // Register route
 router.post("/register", async (req, res) => {
     try {
@@ -49,7 +96,6 @@ router.post("/register", async (req, res) => {
         return res.status(201).json({ message: "Please verify your email" });
     }
     catch (error) {
-        console.log(error);
         if (error instanceof ZodError) {
             const errors = formatError(error);
             return res.status(422).json({ message: "Invalid Data", errors });
@@ -58,5 +104,10 @@ router.post("/register", async (req, res) => {
             .status(500)
             .json({ message: "Something went wrong. Please try again!" });
     }
+});
+// Get User
+router.get("/user", authMiddleware, async (req, res) => {
+    const user = req.user;
+    return res.json({ data: user });
 });
 export default router;
