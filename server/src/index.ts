@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import ejs from "ejs";
 import Routes from "./routes/index.js";
-// import { sendMail } from "./config/mail.js";
+import fileUpload from "express-fileupload";
 const app: Application = express();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +14,12 @@ const port = process.env.PORT || 7000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(appLimitter);
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+  })
+);
 
 // setting view engine
 app.set("view engine", "ejs");

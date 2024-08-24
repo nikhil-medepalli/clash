@@ -96,7 +96,7 @@ router.post("/reset-password", async (req: Request, res: Response) => {
       return res.status(422).json({
         message: "Invalid data",
         errors: {
-          token:
+          email:
             "Link is not correct make sure you have copied the link correctly",
         },
       });
@@ -108,7 +108,7 @@ router.post("/reset-password", async (req: Request, res: Response) => {
       return res.status(422).json({
         message: "Invalid data",
         errors: {
-          token: "Link is expired! Please try again",
+          email: "Link is expired! Please try again",
         },
       });
     }

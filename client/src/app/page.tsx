@@ -6,7 +6,7 @@ const App = async () => {
   const session = await getServerSession(authOptions)
   return (
     <div>
-      {/* <p>{JSON.stringify(session)}</p> */}
+      <p>{JSON.stringify(session)}</p>
       <Hero />
     </div>
   )
