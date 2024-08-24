@@ -2,6 +2,7 @@
 
 import {
   CHECK_CREDENTIALS_URL,
+  FORGOT_PASSWORD_URL,
   LOGIN_URL,
   REGISTER_URL,
 } from "@/lib/apiEndPoints";
@@ -71,6 +72,34 @@ export async function loginAction(prevState: any, formdata: FormData) {
       message: "Something went wrong.Please try again!",
       errors: {},
       data: {},
+    };
+  }
+}
+
+export async function forgotPasswordAction(prevState: any, formdata: FormData) {
+  try {
+    const { data } = await axios.post(FORGOT_PASSWORD_URL, {
+      email: formdata.get("email"),
+    });
+    return {
+      status: 200,
+      message: data?.message ?? "Please check your email to reset your password.",
+      errors: {},
+    };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response?.status === 422) {
+        return {
+          status: 422,
+          message: error.response?.data?.message,
+          errors: error.response?.data?.errors,
+        };
+      }
+    }
+    return {
+      status: 500,
+      message: "Something went wrong.Please try again!",
+      errors: {},
     };
   }
 }
