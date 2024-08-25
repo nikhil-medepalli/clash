@@ -21,12 +21,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import axios, { AxiosError } from "axios";
+import { CLASH_URL } from "@/lib/apiEndPoints";
+import { CustomUser } from "@/app/api/auth/[...nextauth]/options";
+import { toast } from "sonner";
 
-function AddClash() {
+function AddClash({ user }: { user: CustomUser }) {
   const [open, setOpen] = useState(false);
   const [clashData, setClashData] = useState<ClashFormType>({});
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date | null>();
   const [image, setImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<ClashFormTypeError>({});
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,9 +41,40 @@ function AddClash() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  }
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("title", clashData?.title ?? "");
+      formData.append("description", clashData?.description ?? "");
+      formData.append("expire_at", date?.toISOString() ?? "");
+      if (image) formData.append("image", image);
+      const { data } = await axios.post(CLASH_URL, formData, {
+        headers: {
+          Authorization: user.token,
+        },
+      });
+      setLoading(false);
+      if (data?.message) {
+        setClashData({});
+        setDate(null);
+        setImage(null);
+        setErrors({});
+        toast.success("Clash created successfully");
+        setOpen(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 422) {
+          setErrors(error.response?.data?.errors);
+        }
+      } else {
+        toast.error("Something went wrong. Please try again");
+      }
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -47,10 +84,6 @@ function AddClash() {
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Create new clash</DialogTitle>
-          {/* <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </DialogDescription> */}
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="mt-4">
@@ -63,6 +96,7 @@ function AddClash() {
                 setClashData({ ...clashData, title: e.target.value })
               }
             />
+            <span className="text-red-500">{errors?.title}</span>
           </div>
 
           <div className="mt-4">
@@ -75,11 +109,13 @@ function AddClash() {
                 setClashData({ ...clashData, description: e.target.value })
               }
             />
+            <span className="text-red-500">{errors?.description}</span>
           </div>
 
           <div className="mt-4">
             <Label htmlFor="image">Image</Label>
-            <Input id="image" type="file" onChange={handleImageChange}/>
+            <Input id="image" type="file" onChange={handleImageChange} />
+            <span className="text-red-500">{errors?.image}</span>
           </div>
 
           <div className="mt-4">
@@ -102,15 +138,18 @@ function AddClash() {
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={date}
+                  selected={date ?? new Date()}
                   onSelect={setDate}
                   initialFocus
                 />
               </PopoverContent>
             </Popover>
+            <span className="text-red-500">{errors?.expire_at}</span>
           </div>
           <div className="mt-4">
-            <Button className="w-full">Submit</Button>
+            <Button className="w-full" disabled={loading}>
+              {loading ? "Creating..." : "Create Clash"}
+            </Button>
           </div>
         </form>
       </DialogContent>

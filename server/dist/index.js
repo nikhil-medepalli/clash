@@ -3,12 +3,14 @@ import "dotenv/config";
 import path from "path";
 import { fileURLToPath } from "url";
 import ejs from "ejs";
+import cors from "cors";
 import Routes from "./routes/index.js";
 import fileUpload from "express-fileupload";
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT || 7000;
 app.use(express.json());
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(appLimitter);
 app.use(fileUpload({
