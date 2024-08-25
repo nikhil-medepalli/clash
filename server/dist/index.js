@@ -15,6 +15,7 @@ app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: "/tmp/",
 }));
+app.use(express.static("public"));
 // setting view engine
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "./views"));

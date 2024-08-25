@@ -1,7 +1,6 @@
 import { z } from "zod";
-// register schema
-export const clashSchema = z
-    .object({
+// clash schema
+export const clashSchema = z.object({
     title: z
         .string({ message: "Title is required" })
         .min(3, { message: "Title must be 3 characters long" })
@@ -13,5 +12,5 @@ export const clashSchema = z
     expire_at: z
         .string({ message: "Expiry is required" })
         .min(5, { message: "Please provide a proper data!" }),
-    image: z.string().optional()
+    image: z.string().optional(),
 });

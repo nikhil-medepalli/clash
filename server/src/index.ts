@@ -20,6 +20,7 @@ app.use(
     tempFileDir: "/tmp/",
   })
 );
+app.use(express.static("public"))
 
 // setting view engine
 app.set("view engine", "ejs");

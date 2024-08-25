@@ -1,7 +1,7 @@
-export const supportMime = [
+export const supportMimes = [
     "image/png",
-    "image/jpeg",
     "image/jpg",
+    "image/jpeg",
     "image/gif",
     "image/webp",
 ]

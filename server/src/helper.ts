@@ -3,9 +3,10 @@ import ejs from "ejs";
 import path from "path";
 import { fileURLToPath } from "url";
 import moment from "moment";
-import { supportMime } from "./config/filesystem.js";
+import { supportMimes } from "./config/filesystem.js";
 import { UploadedFile } from "express-fileupload";
 import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
 
 export const formatError = (error: ZodError): any => {
   let errors: any = {};
@@ -38,7 +39,7 @@ export const checkDateHourDiff = (date: Date | string): number => {
 export const imageValidator = (size: number, mime: string): string | null => {
   if (bytesToMB(size) > 2) {
     return "Image size should be less than 2MB";
-  } else if (!supportMime.includes(mime)) {
+  } else if (!supportMimes.includes(mime)) {
     return "Invalid image format";
   }
   return null;
@@ -57,3 +58,10 @@ export const uploadImage = async (image: UploadedFile) => {
   });
   return imageName;
 };
+
+export const removeImage = (imageName: string) => {
+  const path = process.cwd() + "/public/images/" + imageName;
+  if(fs.existsSync(path)){
+    fs.unlinkSync(path);
+  }
+}
