@@ -4,14 +4,19 @@ import {
     AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
-    AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
+import {signOut} from "next-auth/react"
   
 const LogoutModal = ({open, setOpen}: {open: boolean, setOpen: React.Dispatch<React.SetStateAction<boolean>>}) => {
+  const logoutUser = async () => {
+    await signOut({
+      callbackUrl: "/login",
+      redirect: true
+    })
+  }
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
   {/* <AlertDialogTrigger>Open</AlertDialogTrigger> */}
@@ -24,7 +29,7 @@ const LogoutModal = ({open, setOpen}: {open: boolean, setOpen: React.Dispatch<Re
     </AlertDialogHeader>
     <AlertDialogFooter>
       <AlertDialogCancel>Cancel</AlertDialogCancel>
-      <AlertDialogAction className="bg-red-500 hover:bg-red-400">Logout</AlertDialogAction>
+      <AlertDialogAction className="bg-red-500 hover:bg-red-400" onClick={logoutUser}>Logout</AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>
 </AlertDialog>
