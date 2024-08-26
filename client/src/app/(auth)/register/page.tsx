@@ -1,7 +1,15 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Register from "@/components/auth/Register";
+import { getServerSession } from "next-auth";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-const register = () => {
+const register = async () => {
+  const session = await getServerSession(authOptions)
+
+  if(session){
+    redirect("/dashboard")
+  }
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="w-[550px] bg-white rounded-xl px-10 py-5 shadow-md">

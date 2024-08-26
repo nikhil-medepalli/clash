@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,9 +25,10 @@ import axios, { AxiosError } from "axios";
 import { CLASH_URL } from "@/lib/apiEndPoints";
 import { CustomUser } from "@/app/api/auth/[...nextauth]/options";
 import { toast } from "sonner";
+import { clearCache } from "@/actions/commonActions";
 
-function EditClash({ user, clash }: { user: CustomUser, clash: ClashType }) {
-  const [open, setOpen] = useState(false);
+
+function EditClash({ token, clash, open, setOpen }: { token: string; clash: ClashType, open: boolean, setOpen: Dispatch<SetStateAction<boolean>> }) {
   const [clashData, setClashData] = useState<ClashFormType>({
     title: clash.title,
     description: clash.description,
@@ -55,11 +56,12 @@ function EditClash({ user, clash }: { user: CustomUser, clash: ClashType }) {
       if (image) formData.append("image", image);
       const { data } = await axios.put(`${CLASH_URL}/${clash.id}`, formData, {
         headers: {
-          Authorization: user.token,
+          Authorization: token,
         },
       });
       setLoading(false);
       if (data?.message) {
+        clearCache("dashboard");
         setClashData({});
         setDate(null);
         setImage(null);

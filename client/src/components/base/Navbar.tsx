@@ -11,7 +11,7 @@ import UserAvatar from "../common/UserAvatar";
 import { useState } from "react";
 import LogoutModal from "../auth/LogoutModal";
 
-const Navbar = ({name: name}: {name: string}) => {
+const Navbar = ({name:name}: {name: string | ""}) => {
     const [open, setOpen] = useState(false)
   return (
     <>

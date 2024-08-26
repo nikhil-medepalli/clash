@@ -9,15 +9,19 @@ import {
 import { clashSchema } from "../validation/clashValidation.js";
 import { UploadedFile } from "express-fileupload";
 import prisma from "../config/database.js";
+import authMiddleware from "../middleware/AuthMiddleware.js";
 
 const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", authMiddleware, async (req: Request, res: Response) => {
   try {
     const clash = await prisma.clash.findMany({
       where: {
         user_id: req.user?.id!,
       },
+      orderBy:{
+        id: "desc"
+      }
     });
     return res
       .status(200)
@@ -47,7 +51,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/", async (req: Request, res: Response) => {
+router.post("/",authMiddleware, async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const payload = clashSchema.parse(body);
@@ -86,7 +90,7 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/:id", async (req: Request, res: Response) => {
+router.put("/:id", authMiddleware,async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const body = req.body;
@@ -139,7 +143,7 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.delete("/:id", async (req: Request, res: Response) => {
+router.delete("/:id",authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const clash = await prisma.clash.findUnique({
@@ -166,5 +170,10 @@ router.delete("/:id", async (req: Request, res: Response) => {
       .json({ message: "Something went wrong. Please try again!" });
   }
 });
+
+// Clash item routes
+router.post("/items",authMiddleware, async (req: Request, res: Response) => {
+  
+})
 
 export default router;

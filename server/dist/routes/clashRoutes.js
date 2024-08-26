@@ -3,13 +3,17 @@ import { ZodError } from "zod";
 import { formatError, imageValidator, removeImage, uploadImage, } from "../helper.js";
 import { clashSchema } from "../validation/clashValidation.js";
 import prisma from "../config/database.js";
+import authMiddleware from "../middleware/AuthMiddleware.js";
 const router = Router();
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
     try {
         const clash = await prisma.clash.findMany({
             where: {
                 user_id: req.user?.id,
             },
+            orderBy: {
+                id: "desc"
+            }
         });
         return res
             .status(200)
@@ -39,7 +43,7 @@ router.get("/:id", async (req, res) => {
             .json({ message: "Something went wrong. Please try again!" });
     }
 });
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
     try {
         const body = req.body;
         const payload = clashSchema.parse(body);
@@ -76,7 +80,7 @@ router.post("/", async (req, res) => {
             .json({ message: "Something went wrong. Please try again!" });
     }
 });
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const body = req.body;
@@ -126,7 +130,7 @@ router.put("/:id", async (req, res) => {
             .json({ message: "Something went wrong. Please try again!" });
     }
 });
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const clash = await prisma.clash.findUnique({
@@ -154,5 +158,8 @@ router.delete("/:id", async (req, res) => {
             .status(500)
             .json({ message: "Something went wrong. Please try again!" });
     }
+});
+// Clash item routes
+router.post("/items", authMiddleware, async (req, res) => {
 });
 export default router;

@@ -22,3 +22,20 @@ export async function fetchClashs(token: string) {
 
   return [];
 }
+
+export async function fetchClash(id: number) {
+  const res = await fetch(`${CLASH_URL}/${id}`, {
+   cache: "no-cache",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+
+  const responce = await res.json();
+  if(responce?.data) {
+    return responce?.data;
+  }
+
+  return null;
+}
