@@ -15,7 +15,7 @@ const dashboard = async () => {
         <div className="flex justify-end mt-10">
           <AddClash user={session?.user!} />
         </div>
-        <div className="flex space-x-5 space-y-4 items-center flex-wrap">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
           {clashs.length > 0 && clashs.map((item, index) => <ClashCard clash={item} key={index} />)}
         </div>
     </div>

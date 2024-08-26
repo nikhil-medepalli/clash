@@ -9,14 +9,16 @@ import {
 import { getImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import ClashCardMenu from "./ClashCardMenu";
 
 const ClashCard = ({ clash }: { clash: ClashType }) => {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex justify-between items-center flex-row">
         <CardTitle>{clash.title}</CardTitle>
+        <ClashCardMenu clash={clash} />
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-[300px]">
         {clash?.image && <Image src={getImageUrl(clash.image)} alt={clash.title} width={500} height={500} className="rounded-md w-full h-[220px] object-contain"/>}
         <p>{clash.description}</p>
         <p>
