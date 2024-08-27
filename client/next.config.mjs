@@ -7,7 +7,8 @@ const nextConfig = {
                 protocol: "http",
             }
         ]
-    }
+    },
+    reactStrictMode: false,
 };
 
 export default nextConfig;

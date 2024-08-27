@@ -12,8 +12,8 @@ router.get("/", authMiddleware, async (req, res) => {
                 user_id: req.user?.id,
             },
             orderBy: {
-                id: "desc"
-            }
+                id: "desc",
+            },
         });
         return res
             .status(200)
@@ -31,6 +31,25 @@ router.get("/:id", async (req, res) => {
         const clash = await prisma.clash.findUnique({
             where: {
                 id: Number(id),
+            },
+            include: {
+                ClashItem: {
+                    select: {
+                        image: true,
+                        id: true,
+                        count: true,
+                    },
+                },
+                ClashComments: {
+                    select: {
+                        id: true,
+                        comment: true,
+                        created_at: true,
+                    },
+                    orderBy: {
+                        id: "desc",
+                    }
+                }
             },
         });
         return res
@@ -149,9 +168,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
                 id: Number(id),
             },
         });
-        return res
-            .status(200)
-            .json({ message: "Clash deleted successfully" });
+        return res.status(200).json({ message: "Clash deleted successfully" });
     }
     catch (error) {
         return res
@@ -161,5 +178,46 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 });
 // Clash item routes
 router.post("/items", authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.body;
+        const files = req.files;
+        let imgErros = [];
+        const images = files?.["images[]"];
+        if (images.length >= 2) {
+            // * Check validation
+            images.map((img) => {
+                const validMsg = imageValidator(img?.size, img?.mimetype);
+                if (validMsg) {
+                    imgErros.push(validMsg);
+                }
+            });
+            if (imgErros.length > 0) {
+                return res.status(422).json({ errors: imgErros });
+            }
+            // * Upload images to items
+            let uploadedImages = [];
+            images.map((img) => {
+                uploadedImages.push(uploadImage(img));
+            });
+            uploadedImages.map(async (item) => {
+                await prisma.clashItem.create({
+                    data: {
+                        image: item,
+                        clash_id: Number(id),
+                    },
+                });
+            });
+            return res.json({ message: "Clash Items updated successfully!" });
+        }
+        return res
+            .status(404)
+            .json({ message: "Please select at least 2 images for clashing." });
+    }
+    catch (error) {
+        // logger.error({ type: "Clash Item", body: JSON.stringify(error) });
+        return res
+            .status(500)
+            .json({ message: "Something went wrong.please try again" });
+    }
 });
 export default router;

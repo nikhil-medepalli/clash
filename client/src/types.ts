@@ -18,8 +18,22 @@ type ClashType = {
     image: string;
     expire_at: string;
     created_at: string;
+    ClashItem: Array<ClashItem>;
+    ClashComments: Array<ClashComment>;
 }
 
 type ClashItemForm = {
   image: File | null;
+}
+
+type ClashItem = {
+  id: number;
+  count: number;
+  image: string
+}
+
+type ClashComment = {
+  id: number;
+  comment: string;
+  created: string
 }

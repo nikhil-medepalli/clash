@@ -25,17 +25,16 @@ export async function fetchClashs(token: string) {
 
 export async function fetchClash(id: number) {
   const res = await fetch(`${CLASH_URL}/${id}`, {
-   cache: "no-cache",
+    cache: "no-cache",
   });
 
   if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
     throw new Error("Failed to fetch data");
   }
-
-  const responce = await res.json();
-  if(responce?.data) {
-    return responce?.data;
+  const response = await res.json();
+  if (response?.data) {
+    return response?.data;
   }
-
   return null;
 }
