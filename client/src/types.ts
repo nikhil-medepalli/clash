@@ -18,5 +18,8 @@ type ClashType = {
     image: string;
     expire_at: string;
     created_at: string;
+}
 
+type ClashItemForm = {
+  image: File | null;
 }
